@@ -199,7 +199,7 @@ class CurlyMethodsTest extends TestCase
     /**
      * @throws \ivuorinen\Curly\Exceptions\HTTPException
      */
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
         $this->curly = new Curly;
