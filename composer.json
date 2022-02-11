@@ -42,11 +42,11 @@
     }
   },
   "scripts": {
-    "post-update-cmd": [
-      "@composer normalize"
+    "post-install-cmd": [
+      "@composer normalize || true"
     ],
-    "post-package-install": [
-      "@composer normalize"
+    "post-update-cmd": [
+      "@composer normalize || true"
     ],
     "check": "vendor/bin/phpstan analyse src tests --level=7",
     "test": "vendor/bin/phpunit --colors --verbose"
