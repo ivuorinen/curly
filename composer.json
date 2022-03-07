@@ -23,7 +23,7 @@
   "require-dev": {
     "ergebnis/composer-normalize": "2.23.1",
     "phpstan/phpstan": "1.4.8",
-    "phpunit/phpunit": "9.5.16",
+    "phpunit/phpunit": "9.5.17",
     "roave/security-advisories": "dev-latest"
   },
   "autoload": {
