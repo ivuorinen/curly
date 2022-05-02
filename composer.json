@@ -21,7 +21,7 @@
     "league/uri": "6.5.0"
   },
   "require-dev": {
-    "ergebnis/composer-normalize": "2.25.2",
+    "ergebnis/composer-normalize": "2.26.0",
     "phpstan/phpstan": "1.6.3",
     "phpunit/phpunit": "9.5.20",
     "roave/security-advisories": "dev-latest"
