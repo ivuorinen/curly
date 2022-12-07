@@ -10,19 +10,19 @@ use League\Uri\Uri;
 class Curly
 {
     /** @var string|null Remote host address (complete url) */
-    private $address = null;
+    private ?string $address = null;
 
     /** @var integer Remote host port */
-    private $port = 80;
+    private int $port = 80;
 
     /** @var string Conversation method (GET or POST) */
-    private $method = 'GET';
+    private string $method = 'GET';
 
     /** @var integer Timeout for request, in seconds. */
-    private $timeout = 30;
+    private int $timeout = 30;
 
     /** @var string HTTP Version (1.0/1.1) */
-    private $httpVersion = "1.0";
+    private string $httpVersion = "1.0";
 
     /**
      * Auth method to use. It currently support only:
@@ -31,22 +31,22 @@ class Curly
      *
      * @var string|null
      */
-    private $authenticationMethod = null;
+    private ?string $authenticationMethod = null;
 
     /** @var string|null Remote host auth username */
-    private $user = null;
+    private ?string $user = null;
 
     /** @var string|null Remote host auth password */
-    private $pass = null;
+    private ?string $pass = null;
 
     /** @var string Request user agent */
-    private $userAgent = 'ivuorinen-curly';
+    private string $userAgent = 'ivuorinen-curly';
 
     /** @var string Content type */
-    private $contentType = 'application/x-www-form-urlencoded';
+    private string $contentType = 'application/x-www-form-urlencoded';
 
     /** @var array Array of headers to send */
-    private $headers = [
+    private array $headers = [
         'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language' => 'en-us,en;q=0.5',
         'Accept-Encoding' => 'gzip,deflate',
@@ -54,56 +54,52 @@ class Curly
     ];
 
     /** @var string|null Should we use a proxy? */
-    private $proxy = null;
+    private ?string $proxy = null;
 
     /** @var string|null */
-    private $proxy_auth = null;
+    private ?string $proxy_auth = null;
 
     /** @var array Allowed HTTP methods */
-    private $supported_auth_methods = ["BASIC", "DIGEST", "SPNEGO", "NTLM"];
+    private array $supported_auth_methods = ["BASIC", "DIGEST", "SPNEGO", "NTLM"];
 
     /** @var array Allowed HTTP authentication */
-    private $supported_http_methods = ["GET", "POST", "PUT", "DELETE"];
+    private array $supported_http_methods = ["GET", "POST", "PUT", "DELETE"];
 
     /** @var boolean Are we using curl? */
-    private $curl = true;
+    private bool $curl = true;
 
     /** @var array Received headers */
-    private $receivedHeaders = [];
+    private array $receivedHeaders = [];
 
     /** @var int|null Received http status code */
-    private $receivedHttpStatus = null;
+    private ?int $receivedHttpStatus = null;
 
     /** @var resource|null Transfer channel */
     private $ch = null;
 
     /** @var string|null */
-    private $stream_get_data = null;
+    private ?string $stream_get_data = null;
 
     /** @var boolean Output debug messages? */
-    private $verbose;
+    private bool $verbose;
 
     /** @var boolean Should we blindly trust host? */
-    private $skipSSLVerify;
+    private bool $skipSSLVerify;
 
     /**
      * Class constructor
      *
-     * @param string|false $address Remote host address
-     * @param bool         $curl    Use curl (true) or stream (false)
+     * @param bool|string $address Remote host address
+     * @param bool $curl Use curl (true) or stream (false)
      *
      * @throws Exceptions\HTTPException
      */
-    public function __construct($address = false, $curl = true)
+    public function __construct(bool|string $address = false, bool $curl = true)
     {
         $this->reset();
 
         if (!empty($address)) {
-            try {
-                $this->setHost($address);
-            } catch (Exceptions\HTTPException $exception) {
-                throw $exception;
-            }
+            $this->setHost($address);
         }
 
         $this->setCurl($curl);
@@ -161,7 +157,7 @@ class Curly
      * @return self
      * @throws Exceptions\HTTPException
      */
-    public function setHost($address = '')
+    public function setHost(string $address = ''): self
     {
         $url = filter_var($address, FILTER_VALIDATE_URL);
 
@@ -189,13 +185,11 @@ class Curly
      *
      * @return self
      */
-    public function setCurl($mode = true)
+    public function setCurl(bool $mode = true): self
     {
         $curl = filter_var($mode, FILTER_VALIDATE_BOOLEAN);
 
-        $this->curl = !function_exists("curl_init") OR !$curl
-            ? false
-            : true;
+        $this->curl = !(!function_exists("curl_init") || !$curl);
 
         return $this;
     }
@@ -215,7 +209,7 @@ class Curly
      *
      * @return bool
      */
-    public function getVerbose()
+    public function getVerbose(): bool
     {
         return $this->verbose;
     }
@@ -227,7 +221,7 @@ class Curly
      *
      * @return self
      */
-    public function setVerbose($value = false)
+    public function setVerbose(bool $value = false): self
     {
         $this->verbose = filter_var($value, FILTER_VALIDATE_BOOLEAN);
 
@@ -239,20 +233,20 @@ class Curly
      *
      * @return bool
      */
-    public function getSkipSSLVerify()
+    public function getSkipSSLVerify(): bool
     {
         return $this->skipSSLVerify;
     }
 
     /**
      * Should we blindly trust host validity?
-     * This helps cases when we have self signed certificates
+     * This helps cases when we have self-signed certificates
      *
      * @param bool $value
      *
      * @return $this
      */
-    public function setSkipSSLVerify($value = false)
+    public function setSkipSSLVerify(bool $value = false): self
     {
         $this->skipSSLVerify = filter_var($value, FILTER_VALIDATE_BOOLEAN);
 
@@ -263,13 +257,13 @@ class Curly
      * Set http authentication
      *
      * @param string $method Auth method (BASIC or NTLM)
-     * @param string $user   Username to use
-     * @param string $pass   User password
+     * @param string $user Username to use
+     * @param string|null $pass User password
      *
      * @return self
      * @throws Exceptions\HTTPException
      */
-    public function setAuth($method, $user, $pass = null)
+    public function setAuth(string $method, string $user, string $pass = null): self
     {
         $method = strtoupper($method);
 
@@ -280,7 +274,7 @@ class Curly
         $this->authenticationMethod = $method;
 
         if (empty($user)) {
-            throw new Exceptions\HTTPException("User name cannot be null");
+            throw new Exceptions\HTTPException("User name cannot be empty");
         }
 
         $this->user = $user;
@@ -296,7 +290,7 @@ class Curly
      *
      * @return self
      */
-    public function setHttpVersion($ver = "1.1")
+    public function setHttpVersion(string $ver = "1.1"): self
     {
         $this->httpVersion = !in_array($ver, ["1.0", "1.1"])
             ? "NONE"
@@ -312,7 +306,7 @@ class Curly
      *
      * @return self
      */
-    public function unsetHeader($header)
+    public function unsetHeader(string $header): self
     {
         if (array_key_exists($header, $this->headers)) {
             unset($this->headers[$header]);
@@ -336,7 +330,7 @@ class Curly
      *
      * @return integer|null
      */
-    public function getHttpStatusCode()
+    public function getHttpStatusCode(): ?int
     {
         return $this->receivedHttpStatus;
     }
@@ -354,25 +348,21 @@ class Curly
     /**
      * Init transport and send data to the remote host.
      *
-     * @param string|array|object|null $data
+     * @param object|array|string|null $data
      *
      * @return string
      * @throws Exceptions\HTTPException
      */
-    public function send($data = null): string
+    public function send(object|array|string $data = null): string
     {
-        try {
-            if ($this->curl) {
-                $this->initCurl($data);
+        if ($this->curl) {
+            $this->initCurl($data);
 
-                $received = $this->sendUsingCurl();
-            } else {
-                $this->initStream($data);
+            $received = $this->sendUsingCurl();
+        } else {
+            $this->initStream($data);
 
-                $received = $this->sendUsingStream();
-            }
-        } catch (Exceptions\HTTPException $ioe) {
-            throw $ioe;
+            $received = $this->sendUsingStream();
         }
 
         return $received;
@@ -381,15 +371,15 @@ class Curly
     /**
      * Init the CURL channel
      *
-     * @param string|array|object|null $data
+     * @param object|array|string|null $data
      *
      * @throws Exceptions\HTTPException
      */
-    private function initCurl($data): void
+    private function initCurl(object|array|string|null $data): void
     {
         $this->ch = curl_init();
 
-        if ($this->ch == false) {
+        if (!$this->ch) {
             throw new Exceptions\HTTPException("Could not init data channel");
         }
 
@@ -405,14 +395,14 @@ class Curly
         if (sizeof($this->headers) != 0) {
             foreach ($this->getHeaders() as $header => $value) {
                 if (is_null($value)) {
-                    array_push($headers, $header);
+                    $headers[] = $header;
                 } else {
-                    array_push($headers, $header . ': ' . $value);
+                    $headers[] = $header . ': ' . $value;
                 }
             }
         }
 
-        if ($this->ch == false) {
+        if (!$this->ch) {
             return;
         }
 
@@ -435,37 +425,29 @@ class Curly
         }
     }
 
-    private function initCurlHTTPVersion(): void
+    private function initCurlHTTPVersion(): bool
     {
-        if ($this->ch == null) {
-            return;
+        if (!$this->ch) {
+            return false;
         }
 
-        switch ($this->httpVersion) {
-            case '1.0':
-                curl_setopt(
-                    $this->ch,
-                    CURLOPT_HTTP_VERSION,
-                    CURL_HTTP_VERSION_1_0
-                );
-                return;
-
-            case '1.1':
-                curl_setopt(
-                    $this->ch,
-                    CURLOPT_HTTP_VERSION,
-                    CURL_HTTP_VERSION_1_1
-                );
-                return;
-
-            default:
-                curl_setopt(
-                    $this->ch,
-                    CURLOPT_HTTP_VERSION,
-                    CURL_HTTP_VERSION_NONE
-                );
-                return;
-        }
+        return match ($this->httpVersion) {
+            '1.0' => curl_setopt(
+                $this->ch,
+                CURLOPT_HTTP_VERSION,
+                CURL_HTTP_VERSION_1_0
+            ),
+            '1.1' => curl_setopt(
+                $this->ch,
+                CURLOPT_HTTP_VERSION,
+                CURL_HTTP_VERSION_1_1
+            ),
+            default => curl_setopt(
+                $this->ch,
+                CURLOPT_HTTP_VERSION,
+                CURL_HTTP_VERSION_NONE
+            ),
+        };
     }
 
     private function initCurlAuthenticationMethod(): void
@@ -545,9 +527,9 @@ class Curly
     }
 
     /**
-     * @param string|array|object|null $data
+     * @param object|array|string|null $data
      */
-    private function initCurlMethod($data): void
+    private function initCurlMethod(object|array|string|null $data): void
     {
         if ($this->ch == null) {
             return;
@@ -657,13 +639,13 @@ class Curly
     /**
      * Convert string, array or object to http_build_query string
      *
-     * @param string|array|object $data
+     * @param object|array|string $data
      *
      * @return string
      */
-    public function parseData($data = ''): string
+    public function parseData(object|array|string $data = ''): string
     {
-        return (is_array($data) OR is_object($data))
+        return (is_array($data) or is_object($data))
             ? http_build_query($data)
             : $data;
     }
@@ -672,11 +654,11 @@ class Curly
      * Set header component
      *
      * @param string $header Header name
-     * @param string $value  Header content (optional)
+     * @param string|null $value Header content (optional)
      *
      * @return self
      */
-    public function setHeader($header, $value = null)
+    public function setHeader(string $header, string $value = null): self
     {
         $this->headers[$header] = $value;
         return $this;
@@ -748,7 +730,7 @@ class Curly
      *
      * @return array
      */
-    public static function tokenizeHeaders($headers): array
+    public static function tokenizeHeaders(string $headers): array
     {
         $return = [];
 
@@ -761,8 +743,8 @@ class Curly
 
             $header_components = explode(":", $header);
 
-            if (!isset($header_components[1]) OR @empty($header_components[1])) {
-                array_push($return, $header_components[0]);
+            if (!isset($header_components[1]) or @empty($header_components[1])) {
+                $return[] = $header_components[0];
             } else {
                 $return[$header_components[0]] = $header_components[1];
             }
@@ -774,11 +756,11 @@ class Curly
     /**
      * Init the STREAM channel
      *
-     * @param string|array|object|null $data
+     * @param object|array|string|null $data
      *
      * @throws Exceptions\HTTPException
      */
-    private function initStream($data): void
+    private function initStream(object|array|string|null $data): void
     {
         if (in_array($this->authenticationMethod, ["DIGEST", "SPNEGO", "NTLM"])) {
             throw new Exceptions\HTTPException(
@@ -807,33 +789,21 @@ class Curly
             $stream_options['http']['proxy'] = $this->proxy;
 
             if (!is_null($this->proxy_auth)) {
-                array_push(
-                    $stream_options['http']['header'],
-                    'Proxy-Authorization: Basic '
-                    . base64_encode($this->proxy_auth)
-                );
+                $stream_options['http']['header'][] = 'Proxy-Authorization: Basic '
+                    . base64_encode($this->proxy_auth);
             }
         }
 
         if ($this->authenticationMethod == "BASIC") {
-            array_push(
-                $stream_options["http"]["header"],
-                "Authorization: Basic "
-                . base64_encode($this->user . ":" . $this->pass)
-            );
+            $stream_options["http"]["header"][] = "Authorization: Basic "
+                . base64_encode($this->user . ":" . $this->pass);
         }
 
         foreach ($this->getHeaders() as $header => $value) {
             if (is_null($value)) {
-                array_push(
-                    $stream_options["http"]["header"],
-                    $header
-                );
+                $stream_options["http"]["header"][] = $header;
             } else {
-                array_push(
-                    $stream_options["http"]["header"],
-                    $header . ': ' . $value
-                );
+                $stream_options["http"]["header"][] = $header . ': ' . $value;
             }
         }
 
@@ -843,15 +813,8 @@ class Curly
             if ($this->method == "GET") {
                 $this->stream_get_data = $data_query;
             } else {
-                array_push(
-                    $stream_options['http']['header'],
-                    "Content-Type: " . $this->contentType
-                );
-
-                array_push(
-                    $stream_options['http']['header'],
-                    "Content-Length: " . strlen($data_query)
-                );
+                $stream_options['http']['header'][] = "Content-Type: " . $this->contentType;
+                $stream_options['http']['header'][] = "Content-Length: " . strlen($data_query);
 
                 $stream_options['http']['content'] = $data_query;
             }
@@ -859,7 +822,7 @@ class Curly
 
         $this->ch = stream_context_create($stream_options);
 
-        if ($this->ch == false) {
+        if (!$this->ch) {
             throw new Exceptions\HTTPException("Cannot init data channel");
         }
     }
@@ -869,8 +832,8 @@ class Curly
      *
      * @return string
      *
-     * @uses \League\Uri\Uri
      * @throws Exceptions\HTTPException
+     * @uses \League\Uri\Uri
      */
     private function sendUsingStream(): string
     {
@@ -902,22 +865,19 @@ class Curly
             }
         );
 
-        try {
-            $received = file_get_contents(
-                $url,
-                false,
-                $this->ch
+        $received = file_get_contents(
+            $url,
+            false,
+            $this->ch
+        );
+
+        if ($received === false) {
+            throw new Exceptions\HTTPException(
+                sprintf(
+                    "No response from %s",
+                    $url
+                )
             );
-            if ($received === false) {
-                throw new Exceptions\HTTPException(
-                    sprintf(
-                        "No response from %s",
-                        $url
-                    )
-                );
-            }
-        } catch (Exceptions\HTTPException $e) {
-            throw $e;
         }
 
         restore_error_handler();
@@ -974,18 +934,14 @@ class Curly
      */
     public function get(): string
     {
-        try {
-            if ($this->curl) {
-                $this->initCurl(null);
+        if ($this->curl) {
+            $this->initCurl(null);
 
-                $received = $this->sendUsingCurl();
-            } else {
-                $this->initStream(null);
+            $received = $this->sendUsingCurl();
+        } else {
+            $this->initStream(null);
 
-                $received = $this->sendUsingStream();
-            }
-        } catch (Exceptions\HTTPException $ioe) {
-            throw $ioe;
+            $received = $this->sendUsingStream();
         }
 
         return $received;
@@ -1006,7 +962,7 @@ class Curly
      *
      * @return self
      */
-    public function setPort($port = 80)
+    public function setPort(int $port = 80): self
     {
         $this->port = filter_var(
             $port,
@@ -1023,9 +979,6 @@ class Curly
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getMethod(): string
     {
         return $this->method;
@@ -1039,7 +992,7 @@ class Curly
      * @return self
      * @throws Exceptions\HTTPException
      */
-    public function setMethod($method = 'GET')
+    public function setMethod(string $method = 'GET'): self
     {
         $method = strtoupper($method);
 
@@ -1056,9 +1009,6 @@ class Curly
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getTimeout(): int
     {
         return $this->timeout;
@@ -1071,7 +1021,7 @@ class Curly
      *
      * @return self
      */
-    public function setTimeout($sec)
+    public function setTimeout(int $sec): self
     {
         $time = filter_var($sec, FILTER_VALIDATE_INT);
 
@@ -1080,17 +1030,11 @@ class Curly
         return $this;
     }
 
-    /**
-     * @return null|string
-     */
     public function getAuthenticationMethod(): ?string
     {
         return $this->authenticationMethod;
     }
 
-    /**
-     * @return null|string
-     */
     public function getProxy(): ?string
     {
         return $this->proxy;
@@ -1100,17 +1044,17 @@ class Curly
      * Set HTTP method to use
      *
      * @param string $address Proxy URL or IP address
-     * @param string $user    (optional) User name for proxy auth
-     * @param string $pass    (optional) User password for proxy auth
+     * @param string|null $user (optional) Username for proxy auth
+     * @param string|null $pass (optional) User password for proxy auth
      *
      * @return self
      * @throws Exceptions\HTTPException
      */
-    public function setProxy($address, $user = null, $pass = null)
+    public function setProxy(string $address, string $user = null, string $pass = null): self
     {
         $proxy = filter_var($address, FILTER_VALIDATE_URL);
 
-        if ($proxy == false) {
+        if (!$proxy) {
             throw new Exceptions\HTTPException(
                 "Invalid proxy address or URL"
             );
@@ -1127,9 +1071,6 @@ class Curly
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getUserAgent(): string
     {
         return $this->userAgent;
@@ -1143,7 +1084,7 @@ class Curly
      * @return self
      * @throws Exceptions\HTTPException
      */
-    public function setUserAgent($userAgent = '')
+    public function setUserAgent(string $userAgent = ''): self
     {
         if (empty($userAgent)) {
             throw new Exceptions\HTTPException("User Agent cannot be empty");
@@ -1154,9 +1095,6 @@ class Curly
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getContentType(): string
     {
         return $this->contentType;
@@ -1170,7 +1108,7 @@ class Curly
      * @return self
      * @throws Exceptions\HTTPException
      */
-    public function setContentType($type)
+    public function setContentType(string $type): self
     {
         if (empty($type)) {
             throw new Exceptions\HTTPException("Content Type cannot be null");
@@ -1181,25 +1119,16 @@ class Curly
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getHttpVersion(): ?string
     {
         return $this->httpVersion;
     }
 
-    /**
-     * @return null|string
-     */
     public function getPass(): ?string
     {
         return $this->pass;
     }
 
-    /**
-     * @return null|string
-     */
     public function getUser(): ?string
     {
         return $this->user;
