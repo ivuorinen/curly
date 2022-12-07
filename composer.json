@@ -18,7 +18,7 @@
     "php": "^8.1",
     "ext-curl": "*",
     "ext-zlib": "*",
-    "league/uri": "6.7.1"
+    "league/uri": "6.8.0"
   },
   "require-dev": {
     "ergebnis/composer-normalize": "2.29.0",
