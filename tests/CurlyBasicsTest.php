@@ -15,10 +15,10 @@ class CurlyBasicsTest extends TestCase
      *
      * @throws \ivuorinen\Curly\Exceptions\HTTPException
      */
-    public function testIsThereAnySyntaxError()
+    public function testIsThereAnySyntaxError(): void
     {
-        $var = new \ivuorinen\Curly\Curly;
-        $this->assertTrue(is_object($var));
+        $var = new \ivuorinen\Curly\Curly();
+        $this->assertIsObject($var);
         unset($var);
     }
 
@@ -31,14 +31,14 @@ class CurlyBasicsTest extends TestCase
      *
      * @throws \ivuorinen\Curly\Exceptions\HTTPException
      */
-    public function testParseData()
+    public function testParseData(): void
     {
-        $var = new \ivuorinen\Curly\Curly;
+        $var = new \ivuorinen\Curly\Curly();
 
         $expected = "foo=bar&baz=buzz";
 
         // String
-        $this->assertTrue($var->parseData($expected) == $expected);
+        $this->assertEquals($expected, $var->parseData($expected));
 
         // Array
         $this->assertEquals(
@@ -47,7 +47,7 @@ class CurlyBasicsTest extends TestCase
         );
 
         // Object
-        $actual = new \stdClass();
+        $actual      = new \stdClass();
         $actual->foo = "bar";
         $actual->baz = "buzz";
 

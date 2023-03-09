@@ -2,7 +2,7 @@ name: Composer Diff
 on:
   pull_request:
     paths:
-      - 'composer.lock'
+      - "composer.lock"
 jobs:
   composer-diff:
     name: Composer Diff
@@ -11,17 +11,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Required to make it possible to compare with PR base branch
+          # Required to make it possible to compare with PR base branch
+          fetch-depth: 0
 
       - name: Generate composer diff
-        id: composer_diff # To reference the output in comment
+        # To reference the output in comment
+        id: composer_diff
         uses: IonBazan/composer-diff-action@v1
 
       - uses: marocchino/sticky-pull-request-comment@v2
         # An empty diff result will break this action.
         if: ${{ steps.composer_diff.outputs.composer_diff_exit_code != 0 }}
         with:
-          header: composer-diff # Creates a collapsed comment with the report
+          # Creates a collapsed comment with the report
+          header: composer-diff
           message: |
             <details>
             <summary>Composer package changes</summary>

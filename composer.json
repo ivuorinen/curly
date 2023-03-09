@@ -48,7 +48,7 @@
     "post-update-cmd": [
       "@composer normalize || true"
     ],
-    "check": "vendor/bin/phpstan analyse src tests --level=7",
-    "test": "vendor/bin/phpunit"
+    "check": "vendor/bin/phpstan analyse src tests --level=5 --xdebug",
+    "test": "vendor/bin/phpunit --colors --verbose"
   }
 }

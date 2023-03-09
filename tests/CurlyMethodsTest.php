@@ -7,32 +7,36 @@ use PHPUnit\Framework\TestCase;
 
 class CurlyMethodsTest extends TestCase
 {
-    protected $curly = false;
+    protected Curly $curly;
 
-    public function testPort()
+    public function testPort(): void
     {
         $this->assertEquals(80, $this->curly->getPort());
         $this->curly->setPort(1234);
         $this->assertEquals(1234, $this->curly->getPort());
     }
 
-    public function testTimeout()
+    public function testTimeout(): void
     {
         $this->assertEquals(30, $this->curly->getTimeout());
         $this->curly->setTimeout(10);
         $this->assertEquals(10, $this->curly->getTimeout());
     }
 
-    public function testSkipSSLVerify()
+    public function testSkipSSLVerify(): void
     {
-        $this->assertTrue(method_exists(
-            $this->curly,
-            'getSkipSSLVerify'
-        ));
-        $this->assertTrue(method_exists(
-            $this->curly,
-            'setSkipSSLVerify'
-        ));
+        $this->assertTrue(
+            method_exists(
+                $this->curly,
+                'getSkipSSLVerify'
+            )
+        );
+        $this->assertTrue(
+            method_exists(
+                $this->curly,
+                'setSkipSSLVerify'
+            )
+        );
 
         $this->assertFalse($this->curly->getSkipSSLVerify());
         $this->curly->setSkipSSLVerify(true);
@@ -41,7 +45,7 @@ class CurlyMethodsTest extends TestCase
         $this->assertFalse($this->curly->getSkipSSLVerify());
     }
 
-    public function testHttpMethod()
+    public function testHttpMethod(): void
     {
         $this->assertTrue(method_exists($this->curly, 'getMethod'));
         $this->assertTrue(method_exists($this->curly, 'setMethod'));
@@ -55,7 +59,7 @@ class CurlyMethodsTest extends TestCase
         );
     }
 
-    public function testVerbose()
+    public function testVerbose(): void
     {
         $this->assertTrue(method_exists($this->curly, 'getVerbose'));
         $this->assertTrue(method_exists($this->curly, 'setVerbose'));
@@ -65,7 +69,7 @@ class CurlyMethodsTest extends TestCase
         $this->assertTrue($this->curly->getVerbose());
     }
 
-    public function testProxy()
+    public function testProxy(): void
     {
         $this->assertTrue(method_exists($this->curly, 'getProxy'));
         $this->assertTrue(method_exists($this->curly, 'setProxy'));
@@ -77,7 +81,7 @@ class CurlyMethodsTest extends TestCase
         $this->assertEquals($proxy, $this->curly->getProxy());
     }
 
-    public function testUserAgent()
+    public function testUserAgent(): void
     {
         $this->assertTrue(method_exists($this->curly, 'getUserAgent'));
         $this->assertTrue(method_exists($this->curly, 'setUserAgent'));
@@ -94,20 +98,32 @@ class CurlyMethodsTest extends TestCase
         );
     }
 
-    public function testHeaders()
+    public function testHeaders(): void
     {
-        $this->assertTrue(method_exists(
-            $this->curly, 'getHeaders'
-        ));
-        $this->assertTrue(method_exists(
-            $this->curly, 'setHeader'
-        ));
-        $this->assertTrue(method_exists(
-            $this->curly, 'getHeader'
-        ));
-        $this->assertTrue(method_exists(
-            $this->curly, 'unsetHeader'
-        ));
+        $this->assertTrue(
+            method_exists(
+                $this->curly,
+                'getHeaders'
+            )
+        );
+        $this->assertTrue(
+            method_exists(
+                $this->curly,
+                'setHeader'
+            )
+        );
+        $this->assertTrue(
+            method_exists(
+                $this->curly,
+                'getHeader'
+            )
+        );
+        $this->assertTrue(
+            method_exists(
+                $this->curly,
+                'unsetHeader'
+            )
+        );
 
         $headers = $this->curly->getHeaders();
 
@@ -115,11 +131,13 @@ class CurlyMethodsTest extends TestCase
             'Accept',
             'Accept-Language',
             'Accept-Encoding',
-            'Accept-Charset'
+            'Accept-Charset',
         ];
         foreach ($defaultHeaders as $defaultHeader) {
             $this->assertArrayHasKey(
-                $defaultHeader, $headers, $defaultHeader
+                $defaultHeader,
+                $headers,
+                $defaultHeader
             );
 
             $this->curly->setHeader($defaultHeader, 'testing');
@@ -134,14 +152,20 @@ class CurlyMethodsTest extends TestCase
         }
     }
 
-    public function testContentType()
+    public function testContentType(): void
     {
-        $this->assertTrue(method_exists(
-            $this->curly, 'getContentType'
-        ));
-        $this->assertTrue(method_exists(
-            $this->curly, 'setContentType'
-        ));
+        $this->assertTrue(
+            method_exists(
+                $this->curly,
+                'getContentType'
+            )
+        );
+        $this->assertTrue(
+            method_exists(
+                $this->curly,
+                'setContentType'
+            )
+        );
 
         $default = 'application/x-www-form-urlencoded';
         $this->assertEquals($default, $this->curly->getContentType());
@@ -153,7 +177,7 @@ class CurlyMethodsTest extends TestCase
         );
     }
 
-    public function testAuth()
+    public function testAuth(): void
     {
         $this->curly->setAuth(
             'BASIC',
@@ -169,7 +193,7 @@ class CurlyMethodsTest extends TestCase
         $this->assertEquals('pass', $this->curly->getPass());
     }
 
-    public function testHttpVersion()
+    public function testHttpVersion(): void
     {
         $this->assertEquals(
             '1.0',
@@ -189,17 +213,14 @@ class CurlyMethodsTest extends TestCase
         );
     }
 
-    public function testHost()
+    public function testHost(): void
     {
         $test = 'http://user:password@example.com/xyz';
         $this->curly->setHost($test);
         $this->assertEquals($test, $this->curly->getHost());
     }
 
-    /**
-     * @throws \ivuorinen\Curly\Exceptions\HTTPException
-     */
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->curly = new Curly;
