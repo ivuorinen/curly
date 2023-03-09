@@ -12,8 +12,6 @@ class CurlyBasicsTest extends TestCase
      * This is just a simple check to make sure your library has no
      * syntax error. This helps you troubleshoot any typo before you
      * even use this library in a real project.
-     *
-     * @throws \ivuorinen\Curly\Exceptions\HTTPException
      */
     public function testIsThereAnySyntaxError(): void
     {
@@ -28,8 +26,6 @@ class CurlyBasicsTest extends TestCase
      * This is just a simple check to make sure your library has no
      * syntax error. This helps you troubleshoot any typo before you
      * even use this library in a real project.
-     *
-     * @throws \ivuorinen\Curly\Exceptions\HTTPException
      */
     public function testParseData(): void
     {

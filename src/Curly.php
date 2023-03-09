@@ -194,7 +194,7 @@ class Curly
      */
     public function __destruct()
     {
-        if ($this->ch !== null) {
+        if ($this->ch !== false) {
             $this->closeTransport();
         }
     }
@@ -304,6 +304,7 @@ class Curly
 
         return $this;
     }
+
     /**
      * @return array|string[]
      */
@@ -354,7 +355,7 @@ class Curly
     {
         $this->ch = curl_init();
 
-        if (!$this->ch) {
+        if ($this->ch === false) {
             throw new Exceptions\HTTPException("Could not init data channel");
         }
 
@@ -408,7 +409,7 @@ class Curly
             return false;
         }
 
-        return match ($this->httpVersion) {
+        match ($this->httpVersion) {
             '1.0' => curl_setopt(
                 $this->ch,
                 CURLOPT_HTTP_VERSION,
@@ -425,6 +426,8 @@ class Curly
                 CURL_HTTP_VERSION_NONE
             ),
         };
+
+        return true;
     }
 
     private function initCurlAuthenticationMethod(): void
@@ -510,6 +513,7 @@ class Curly
         }
 
         switch ($this->method) {
+            default:
             case 'GET':
                 $payload = empty($data)
                     ? $this->address
@@ -520,8 +524,7 @@ class Curly
                     CURLOPT_URL,
                     $payload
                 );
-
-                return;
+                break;
 
             case 'PUT':
                 curl_setopt(
@@ -549,7 +552,7 @@ class Curly
                     $this->address
                 );
 
-                return;
+                break;
 
             case 'POST':
                 curl_setopt(
@@ -576,7 +579,7 @@ class Curly
                     $this->address
                 );
 
-                return;
+                break;
 
             case 'DELETE':
                 curl_setopt(
@@ -604,7 +607,7 @@ class Curly
                     $this->address
                 );
 
-                return;
+                break;
         }
     }
 
@@ -763,13 +766,13 @@ class Curly
 
             if (!is_null($this->proxyAuth)) {
                 $streamOptions['http']['header'][] = 'Proxy-Authorization: Basic '
-                    . base64_encode($this->proxyAuth);
+                                                     . base64_encode($this->proxyAuth);
             }
         }
 
         if ($this->authenticationMethod === "BASIC") {
             $streamOptions["http"]["header"][] = "Authorization: Basic "
-                . base64_encode($this->user . ":" . $this->pass);
+                                                 . base64_encode($this->user . ":" . $this->pass);
         }
 
         foreach ($this->getHeaders() as $header => $value) {
@@ -803,10 +806,10 @@ class Curly
      * Send data via STREAM
      *
      * @uses \League\Uri\Uri
+     * @uses \League\Uri\Uri
      * @return string
      *
      * @throws Exceptions\HTTPException
-     * @uses \League\Uri\Uri
      */
     private function sendUsingStream(): string
     {
@@ -876,7 +879,7 @@ class Curly
             3
         );
 
-        $this->receivedHttpStatus = (int) $receivedHttpStatus;
+        $this->receivedHttpStatus = (int)$receivedHttpStatus;
 
         unset($version, $msg);
 
@@ -970,9 +973,11 @@ class Curly
 
         if (!in_array($method, $this->supportedHttpMethods, true)) {
             throw new Exceptions\HTTPException(
-                "Unsupported HTTP method: " . $method
-                    . '. Should be one of: '
-                    . implode(', ', $this->supportedHttpMethods)
+                sprintf(
+                    "Unsupported HTTP method: %s. Should be one of: %s",
+                    $method,
+                    implode(', ', $this->supportedHttpMethods)
+                )
             );
         }
 
@@ -1016,7 +1021,7 @@ class Curly
      * Set HTTP method to use
      *
      * @param string      $address Proxy URL or IP address
-     * @param string|null $user    (optional) User name for proxy auth
+     * @param string|null $user    (optional) Username for proxy auth
      * @param string|null $pass    (optional) User password for proxy auth
      *
      * @return self
