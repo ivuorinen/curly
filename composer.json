@@ -49,6 +49,6 @@
       "@composer normalize || true"
     ],
     "check": "vendor/bin/phpstan analyse src tests --level=5 --xdebug",
-    "test": "vendor/bin/phpunit --colors --verbose"
+    "test": "vendor/bin/phpunit --colors"
   }
 }
