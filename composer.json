@@ -22,8 +22,8 @@
   },
   "require-dev": {
     "ergebnis/composer-normalize": "2.37.0",
-    "phpstan/phpstan": "1.10.34",
-    "phpunit/phpunit": "10.3.4",
+    "phpstan/phpstan": "1.10.35",
+    "phpunit/phpunit": "10.3.5",
     "roave/security-advisories": "dev-latest"
   },
   "autoload": {
