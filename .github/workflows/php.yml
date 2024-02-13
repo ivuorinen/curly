@@ -13,9 +13,9 @@ jobs:
 
     strategy:
       matrix:
-        operating-system: ['ubuntu-latest']
-        php-versions: ['8.1']
-        phpunit-versions: ['latest']
+        operating-system: ["ubuntu-latest"]
+        php-versions: ["8.3"]
+        phpunit-versions: ["latest"]
 
     steps:
       - name: Setup PHP
@@ -47,4 +47,3 @@ jobs:
 
       - name: Run test suite
         run: composer test
-

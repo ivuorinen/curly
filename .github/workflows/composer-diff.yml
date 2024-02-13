@@ -32,4 +32,3 @@ jobs:
             ${{ steps.composer_diff.outputs.composer_diff }}
 
             </details>
-
