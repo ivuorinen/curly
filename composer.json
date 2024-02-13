@@ -22,7 +22,7 @@
   },
   "require-dev": {
     "ergebnis/composer-normalize": "2.42.0",
-    "phpstan/phpstan": "1.10.57",
+    "phpstan/phpstan": "1.10.58",
     "phpunit/phpunit": "10.5.10",
     "roave/security-advisories": "dev-latest"
   },
